@@ -24,6 +24,7 @@ export default function Home() {
     const addnewsite=()=>{
 
         setCompetitors([...competitors, competitor]);
+        setCompetitor('')
     }
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -64,19 +65,13 @@ SEO Rank Checker</h2>
             <form onSubmit={handleSubmit} className='min-w-96'>
                 <div>
                     <label>Keyword: </label>
-                    <Input type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)}  />
+                    <Input type="text" value={keyword} required onChange={(e) => setKeyword(e.target.value)}  />
                 </div>
                 <div>
                     <label>Site Name: </label>
-                    <Input type="text" value={sitename} onChange={(e) => setSitename(e.target.value)}  />
+                    <Input type="text" value={sitename} required onChange={(e) => setSitename(e.target.value)}  />
                 </div>
-                <div>
-                    <label>Device: </label>
-                    <select value={device} onChange={(e) => setDevice(e.target.value)}>
-                        <option value="desktop">Desktop</option>
-                        <option value="mobile">Mobile</option>
-                    </select>
-                </div>
+            
                 <div className=' mt-4 '>
 
 <label>Competitors</label>
@@ -88,7 +83,7 @@ SEO Rank Checker</h2>
 ))}
                 <div className='relative  '>
 
-        <Input type="text" id="websiteInput" name="websiteInput" value={competitor} onChange={(e) => setCompetitor(e.target.value)} className=' pr-6'/>
+        <Input type="text" id="websiteInput" name="websiteInput" value={competitor}  onChange={(e) => setCompetitor(e.target.value)} className=' pr-6'/>
         <PlusCircleIcon type="button" id="addButton" onClick={addnewsite} className='absolute bottom-0 right-0 border-none cursor-pointer bg-primary text-white h-full w-10 p-3 rounded-lg' />
     </div>
     </div>
