@@ -1,10 +1,20 @@
 // pages/api/scrape.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
-import puppeteer from 'puppeteer';
-import * as XLSX from 'xlsx';
-import path from 'path';
-import { NextRequest, NextResponse } from 'next/server';
+import Puppeteer from 'puppeteer';
+import Chrome from 'chrome-aws-lambda';
+import puppeteerCore from 'puppeteer-core';
 
+
+import { NextRequest } from 'next/server';
+
+let puppeteer:any;
+let chrome:any={}
+if(process.env.AWS_LAMBDA_FUNCTION_VERSION){
+    puppeteer=puppeteerCore
+    chrome=Chrome;
+
+}else{
+    puppeteer=Puppeteer;
+}
 const mobileUserAgents = [
     'Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X)...',
     // Add more user agents if needed
@@ -53,14 +63,31 @@ const rankCheck = (sitename: string, urls: urltype[], keyword: string, type: str
 
 const getData = async (keyword: string, sitename: string, device: string,competitors: string[]) => {
     const googleUrl = `https://www.google.com/search?num=100&q=${encodeURIComponent(keyword)}`;
-    const browser = await puppeteer.launch({ headless: true });
+    let options={};
+    if(process.env.AWS_LAMBDA_FUNCTION_VERSION)
+    {
+    options={
+        args: [...chrome.args, '--hide-scrollbars', '--disable-web-security'],
+        defaultViewport: chrome.defaultViewport,
+        executablePath: await chrome.executablePath,
+        headless: true,
+        ignoreHTTPSErrors: true,
+      }
+    }else{
+        options={
+            headless:true
+        }
+
+      }
+      const browser = await puppeteer.launch(options);
+
     const page = await browser.newPage();
     try {
         await page.goto(googleUrl, { waitUntil: 'networkidle2' });
-        const data= await page.$$eval('#search  a',(anchors) =>{
+        const data= await page.$$eval('#search  a',(anchors :any) =>{
             let urls:urltype[]=[]
 
-            anchors.map(anchor => {
+            anchors.map((anchor:any)  => {
                 const imageElement = anchor.querySelector('img.XNo5Ab') as HTMLImageElement;
                 const imageSrc=imageElement?imageElement.src:null;
                 const headingElement = anchor.querySelector("span.VuuXrf");
@@ -98,14 +125,14 @@ const heading = headingElement ? headingElement.textContent : null;
 export async function GET(req: NextRequest){
     const url = new URL(req.url!)
 
-    const keyword = url.searchParams.get("keyword")
-    const sitename = url.searchParams.get("sitename")
-    const device = url.searchParams.get("device")
-    const competitors = url.searchParams.getAll("competitor")
-    // const keyword="phone";
-    // const sitename="www.flipkart.com"
-    // const device="desktop"
-    // const competitors=["www.amazon.in"]
+    // const keyword = url.searchParams.get("keyword")
+    // const sitename = url.searchParams.get("sitename")
+    // const device = url.searchParams.get("device")
+    // const competitors = url.searchParams.getAll("competitor")
+    const keyword="phone";
+    const sitename="www.flipkart.com"
+    const device="desktop"
+    const competitors=["www.amazon.in"]
 
     if (!keyword || !sitename || !device) {
         return new Response('Missing query params', { status: 400 }); // res.status(400).json({ error: 'Missing query parameters' });
