@@ -1,4 +1,1 @@
-module.exports = {
-
-    externals: ['chrome-aws-lambda'],
-  }
+export const externals = ['chrome-aws-lambda'];
