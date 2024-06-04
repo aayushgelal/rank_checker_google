@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import puppeteer from 'puppeteer';
 import * as XLSX from 'xlsx';
 import path from 'path';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const mobileUserAgents = [
     'Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X)...',
@@ -35,13 +35,17 @@ const rankCheck = (sitename: string, urls: urltype[], keyword: string, type: str
     urls.forEach((url, index) => {
     
          if (url.url.includes(site) && !url.url.includes("translate.google.com") && !url.url.includes("google.com/search")) {
-            data.push({
-                Keyword: keyword,
-                Rank: index + 1,
-                URLs: url,
-                Date: new Date().toISOString().split('T')[0],
-                Type: type
-            });
+            const existingUrl = data.find((item) => item.URLs.url === url.url);
+            if (!existingUrl) {
+                data.push({
+                    Keyword: keyword,
+                    Rank: index + 1,
+                    URLs: url,
+                    Date: new Date().toISOString().split('T')[0],
+                    Type: type
+                });
+            }
+        
         }
     });
     return data;
@@ -73,7 +77,6 @@ const heading = headingElement ? headingElement.textContent : null;
             return urls;
        
         });
-                    console.log(data)
 
         await page.close();
         await browser.close();
@@ -92,7 +95,7 @@ const heading = headingElement ? headingElement.textContent : null;
     }
 };
 
-export async function GET(req: NextApiRequest, res: NextApiResponse){
+export async function GET(req: NextRequest){
     const url = new URL(req.url!)
 
     const keyword = url.searchParams.get("keyword")
@@ -105,7 +108,7 @@ export async function GET(req: NextApiRequest, res: NextApiResponse){
     // const competitors=["www.amazon.in"]
 
     if (!keyword || !sitename || !device) {
-        return res.status(400).json({ error: 'Missing query parameters' });
+        return new Response('Missing query params', { status: 400 }); // res.status(400).json({ error: 'Missing query parameters' });
     }
 
     const data = await getData(keyword as string, sitename as string, device as string,competitors as string[]);
