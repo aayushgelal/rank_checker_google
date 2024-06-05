@@ -1,16 +1,14 @@
 // pages/api/scrape.ts
 import Puppeteer from 'puppeteer';
-import Chrome from 'chrome-aws-lambda';
+import Chromium from 'chrome-aws-lambda';
 import puppeteerCore from 'puppeteer-core';
 
 
 import { NextRequest } from 'next/server';
 
 let puppeteer:any;
-let chrome:any={}
 if(process.env.AWS_LAMBDA_FUNCTION_VERSION){
     puppeteer=puppeteerCore
-    chrome=Chrome;
 
 }else{
     puppeteer=Puppeteer;
@@ -67,9 +65,9 @@ const getData = async (keyword: string, sitename: string, device: string,competi
     if(process.env.AWS_LAMBDA_FUNCTION_VERSION)
     {
     options={
-        args: [...chrome.args, '--hide-scrollbars', '--disable-web-security'],
-        defaultViewport: chrome.defaultViewport,
-        executablePath: await chrome.executablePath,
+        args: [...Chromium.args, '--hide-scrollbars', '--disable-web-security'],
+        defaultViewport: Chromium.defaultViewport,
+        executablePath: await Chromium.executablePath,
         headless: true,
         ignoreHTTPSErrors: true,
       }
