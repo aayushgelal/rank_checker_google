@@ -1,18 +1,9 @@
 // pages/api/scrape.ts
-import Puppeteer from 'puppeteer';
-import Chromium from 'chrome-aws-lambda';
-import puppeteerCore from 'puppeteer-core';
-
-
+import chromium from '@sparticuz/chromium-min'
+import puppeteer from 'puppeteer-core';
 import { NextRequest } from 'next/server';
 
-let puppeteer:any;
-if(process.env.AWS_LAMBDA_FUNCTION_VERSION){
-    puppeteer=puppeteerCore
 
-}else{
-    puppeteer=Puppeteer;
-}
 const mobileUserAgents = [
     'Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X)...',
     // Add more user agents if needed
@@ -61,23 +52,30 @@ const rankCheck = (sitename: string, urls: urltype[], keyword: string, type: str
 
 const getData = async (keyword: string, sitename: string, device: string,competitors: string[]) => {
     const googleUrl = `https://www.google.com/search?num=100&q=${encodeURIComponent(keyword)}`;
-    let options={};
-    if(process.env.AWS_LAMBDA_FUNCTION_VERSION)
-    {
-    options={
-        args: [...Chromium.args, '--hide-scrollbars', '--disable-web-security'],
-        defaultViewport: Chromium.defaultViewport,
-        executablePath: await Chromium.executablePath,
-        headless: true,
-        ignoreHTTPSErrors: true,
-      }
-    }else{
-        options={
-            headless:true
-        }
 
-      }
-      const browser = await puppeteer.launch(options);
+    const localExecutablePath =
+  process.platform === "win32"
+    ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+    : process.platform === "linux"
+    ? "/usr/bin/google-chrome"
+    : "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+
+const remoteExecutablePath =
+  "https://github.com/Sparticuz/chromium/releases/download/v119.0.2/chromium-v119.0.2-pack.tar";
+
+const isDev = process.env.NODE_ENV === "development";
+const browser= await  puppeteer.launch({
+    args: isDev ? [] : chromium.args,
+    defaultViewport: { width: 1920, height: 1080 },
+    executablePath: isDev
+      ? localExecutablePath
+      : await chromium.executablePath(remoteExecutablePath),
+    headless: chromium.headless,
+  });
+   
+  
+
+      
 
     const page = await browser.newPage();
     try {
