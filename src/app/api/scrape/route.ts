@@ -79,7 +79,7 @@ const browser= await  puppeteer.launch({
 
     const page = await browser.newPage();
     try {
-        await page.goto(googleUrl, { waitUntil: 'networkidle2' });
+        await page.goto(googleUrl, { waitUntil: 'networkidle0', timeout: 10000 });
         const data= await page.$$eval('#search  a',(anchors :any) =>{
             let urls:urltype[]=[]
 
@@ -121,14 +121,14 @@ const heading = headingElement ? headingElement.textContent : null;
 export async function GET(req: NextRequest){
     const url = new URL(req.url!)
 
-    // const keyword = url.searchParams.get("keyword")
-    // const sitename = url.searchParams.get("sitename")
-    // const device = url.searchParams.get("device")
-    // const competitors = url.searchParams.getAll("competitor")
-    const keyword="phone";
-    const sitename="www.flipkart.com"
-    const device="desktop"
-    const competitors=["www.amazon.in"]
+    const keyword = url.searchParams.get("keyword")
+    const sitename = url.searchParams.get("sitename")
+    const device = url.searchParams.get("device")
+    const competitors = url.searchParams.getAll("competitor")
+    // const keyword="phone";
+    // const sitename="www.flipkart.com"
+    // const device="desktop"
+    // const competitors=["www.amazon.in"]
 
     if (!keyword || !sitename || !device) {
         return new Response('Missing query params', { status: 400 }); // res.status(400).json({ error: 'Missing query parameters' });

@@ -17,13 +17,16 @@ export default function ListPage() {
   <div className='p-4 flex flex-wrap space-x-3 space-y-5 items-center'>
       {RankData?.map((item: any, index: number) => (
           <Card key={index} className='max-w-fit max-h-fit'>
-  <CardHeader>
+  <CardHeader className='flex flex-row space-x-2 justify-between'>
+    <div>
     <CardTitle>{item.Rank}</CardTitle>
     <CardDescription className=' font-bold'>{item.URLs.heading}</CardDescription>
+    </div>
+    {item.URLs.image && <Image src={item.URLs.image} className="rounded-full w-12" alt="image" width={100} height={100}/>}
+
   </CardHeader>
   <CardContent>
-   {item.URLs.image && <Image src={item.URLs.image} alt="image" width={100} height={100}/>}
-    <p>{item.URLs.url}</p>
+    <a href={item.URLs.url} target="_blank" rel="noopener noreferrer">{item.URLs.url}</a>
   </CardContent>
   <CardFooter className='  font-light text-sm'>
     <p>{item.Keyword}</p>
